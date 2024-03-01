@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>output</title>
+    <link rel="stylesheet" href="/styles/output_styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+    <section class="output">
+        <% if (wireframeimagepath !== '/Default') { %>
+            <h4>Your wireframe is ready!</h4>
+            <img src="<%= `${wireframeimagepath}.png` %>" alt="Wireframe Design">
+        <% } else { %>
+            <h4>No wireframe available</h4>
+            <img src="<%= `${wireframeimagepath}.png` %>" alt="Wireframe Design">
+        <% } %>
+        
+
+        <div class="buttons">
+            
+          <!-- Download PNG Button -->
+            <a href="/download/png<%= wireframeimagepath %>" download="Wireframe.png">
+                <button class="btn">Download PNG</button>
+            </a>
+            
+            <!-- Download SVG Button -->
+            <a href="/download/svg<%= wireframeimagepath %>" download="Wireframe.svg">
+                <button class="btn">Download SVG</button>
+            </a>
+    
+            <a href="/" >
+                <button class="btn-close">Close</button>
+            </a> 
+        </div>
+         
+        
+         
+    </section>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesignDrafts</title>
+
+    <link rel="stylesheet" href="/styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <form id="generateForm" action="/generate" method="POST" onsubmit="openDesignPage(); return false;">
+    <section class="header">
+      <h4>WIREFRAME GENERATOR</h4>
+      <h2>Welcome to AKKi's<br>Design Drafts</h2>
+      <p>where text prompts come to life in sleek<br>wireframes on our website!</p>
+      <div class="input">
+        <div class="info-container">
+          <img src="/assets/info_icon.png" alt="info-image" class="info-icon">
+          <div class="info-message">Enter proper keywords/wireframe names for better results.</div>
+      </div>
+        <label for="design" class="D"></label>
+        <textarea type="text" id="design" placeholder="Enter a prompt in English" name="design" required></textarea>
+        <button type="submit" class="gen" >Generate</button>
+      </div>
+      
+      <!-- Feedback Form Section -->
+      <div class="feedback-section">
+        <h3>Feedback</h3>
+        <textarea id="feedback" name="feedback" placeholder="Share your thoughts or suggestions"></textarea>
+
+        <div class="rating-container">
+          <label for="rating">Rating:</label>
+          <div class="stars" id="starContainer">
+            <span class="star" data-value="1">&#9734;</span>
+            <span class="star" data-value="2">&#9734;</span>
+            <span class="star" data-value="3">&#9734;</span>
+            <span class="star" data-value="4">&#9734;</span>
+            <span class="star" data-value="5">&#9734;</span>
+          </div>
+          <input type="hidden" id="rating" name="rating" />
+        </div>
+
+        <button type="button" onclick="openFeedbackForm()">Provide Feedback</button>
+        <button type="button" class="lf" onclick="loadfeedbacks()">Review & Ratings</button>
+        <div id="feedbackContainer"></div>
+
+      </div>
+    </section>
+  </form>
+   
+  <div id="myModal" class="modal">
+    <div class="modal-content" id="modalContent">
+      <span class="close" onclick="closeDesignPage()">&times;</span>
+      <button class="close-btn" onclick="closeDesignPage()">Close</button>
+      <div id="outputContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    function openDesignPage() {
+      var designTextarea = document.getElementById("design");
+      var designText = designTextarea.value.trim();
+  
+      if (designText === "" || typeof designText !== 'string' || /\d/.test(designText) ) {
+        alert("Invalid input. Please provide a valid input.");
+      } else {
+        // Submit the form to trigger the server-side rendering
+        document.getElementById('generateForm').submit();
+      }
+    }
+
+    function openFeedbackForm() {
+      var feedbackTextarea = document.getElementById("feedback");
+      var feedbackText = feedbackTextarea.value.trim();
+
+      var selected = document.getElementById("rating").value;
+      var selectedRating = getSelectedRating();
+      function getSelectedRating(){
+         var starContainer=document.getElementById("starContainer");
+         var selectedStars=starContainer.querySelectorAll('.star.active');
+         if (selectedStars.length > 0) {
+          return selectedStars[selected-1].getAttribute('data-value');
+        } else {
+          return null;
+         }
+      }
+
+      if (selectedRating!==null) {
+        // Submit feedback form asynchronously using fetch API
+        fetch("/feedback", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ feedback: feedbackText,rating: selectedRating }),
+        })
+          .then((response) => response.text())
+          .then((result) => {
+            // Display a confirmation message or handle as needed
+            alert(result);
+
+            feedbackTextarea.value = "";
+
+             // Reset star ratings
+          var starContainer = document.getElementById("starContainer");
+          starContainer.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+        
+          })
+          .catch((error) => {
+            console.error("Error submitting feedback:", error.message);
+          });
+      } else {
+        alert("Please provide rating before submitting.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+    var starContainer = document.getElementById("starContainer");
+
+    // Attach click event to stars
+    starContainer.addEventListener("click", function (event) {
+      if (event.target.classList.contains("star")) {
+        var clickedValue = event.target.getAttribute("data-value");
+
+        // Set the rating input value
+        document.getElementById("rating").value = clickedValue;
+
+        // Activate stars up to the clicked one
+        starContainer.querySelectorAll('.star').forEach(star => {
+          star.classList.toggle('active', star.getAttribute('data-value') <= clickedValue);
+        });
+      }
+    });
+  });
+
+
+  function loadfeedbacks() {
+    // Make an asynchronous request to fetch feedbacks
+    fetch("/feedbacks")
+      .then((response) => response.json())
+      .then((feedbacks) => {
+        // Handle the retrieved feedbacks, for example, display them in a container
+        displayFeedbacks(feedbacks);
+      })
+      .catch((error) => {
+        console.error("Error fetching feedbacks:", error.message);
+        alert("Failed to fetch feedbacks. Please try again later.");
+      });
+  }
+
+
+ function displayFeedbacks(feedbacks) {
+  // Get the container element
+  var feedbackContainer = document.getElementById("feedbackContainer");
+
+  // Clear existing content in the container
+  feedbackContainer.innerHTML = "";
+
+  // Display each feedback entry
+  feedbacks.forEach((feedback) => {
+    var feedbackEntry = document.createElement("div");
+    feedbackEntry.innerHTML = `<p>${feedback.serial}.${feedback.feedback}</p>`;
+    
+    // Display stars based on the rating
+    if (feedback.rating !== undefined) {
+      feedbackEntry.innerHTML += displayStars(parseInt(feedback.rating));
+    }
+
+    feedbackContainer.appendChild(feedbackEntry);
+  });
+}
+
+function displayStars(rating) {
+  // Create a string with rating number of golden stars followed by off stars
+  let stars = '';
+  for (let i = 1; i <= 5; i++) {
+    if (i <= rating) {
+      stars += '★'; // Golden star
+    } else {
+      stars += '☆'; // Off star
+    }
+  }
+  return `<p>${stars}</p>`;
+}
+
+  
+    function closeDesignPage() {
+      var modal = document.getElementById('myModal');
+      modal.classList.remove('show');
+      setTimeout(function () {
+        modal.style.display = 'none';
+      }, 300);
+    }
+  </script>
+</body>
+</html>
