@@ -1,0 +1,27 @@
+{
+  "name": "brillio-sparxelerate-bsx07",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "body-parser": "^1.20.2",
+    "compromise": "^14.11.0",
+    "dictionary-en": "^4.0.0",
+    "ejs": "^3.1.9",
+    "express": "^4.18.3",
+    "natural": "^6.10.4",
+    "spell-checker": "^0.0.26",
+    "string-similarity": "^4.0.4",
+    "typo-js": "^1.2.3",
+    "wink-lexicon": "^2.2.0"
+  },
+  "description": ""
+}
